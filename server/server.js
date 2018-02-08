@@ -5,6 +5,7 @@ var {ObjectID} = require('mongodb')
 var {mongoose} = require('./db/mongoose-coonect')
 var {Todo} = require('./model/todo')
 var {User} = require('./model/user')
+var {Student} = require('./model/student')
 
 var app = new express();
 var port = process.env.PORT || 3001
@@ -43,6 +44,39 @@ app.get('/todos/:id',(req,res)=>{
         res.send({data});
     })
 })
+
+
+//to delete
+
+app.delete('/user/:id',(req,res)=>{
+    var id = req.params.id;
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+    User.findByIdAndRemove(id).then(
+        (doc)=>{
+            if(!doc){
+                res.status(404).send()
+            }
+            res.send(doc)
+        }
+    ).catch((e)=>{
+        res.status(400).send();
+    })
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 app.listen(port,()=>
