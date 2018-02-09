@@ -5,7 +5,9 @@ MongoClient.connect('mongodb://localhost:27017/company',(err,db)=>
         return console.log('Does not connect')
     }
     console.log('Connected to mongodb');
-    db.collection("emp").findOneAndUpdate({lname:"chauhan"},{$set : {fname:"priti",lname:"maurya",mob:8530180020}}).then(
+    db.collection("emp").findOneAndUpdate({lname:"chauhan"},{
+        $set : {fname:"priti",lname:"maurya",mob:8530180020}
+    }).then(
         (res)=>{
             console.log(JSON.stringify(res,undefined,2))
         },

@@ -1,6 +1,22 @@
+var env = process.env.NODE_ENV || 'development'
+console.log("*****env*****  ",env)
+if(env === 'development'){
+    process.env.PORT = 3001;
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/company';
+}
+else if(env === 'test')
+{
+    process.env.PORT = 3001;
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/companyTest';
+}
+
+
 var express = require('express')
 var bodyParser = require('body-parser')
 var {ObjectID} = require('mongodb')
+var _ = require('lodash')
+
+var bodyParser = require('body-parser')
 
 var {mongoose} = require('./db/mongoose-coonect')
 var {Todo} = require('./model/todo')
@@ -14,6 +30,7 @@ app.use(bodyParser.json())
 app.post('/todos',(req,res)=>{
 
     var newTodo = new Todo({
+        complete: req.body.complete,
         text: req.body.text
     });
 
@@ -27,7 +44,6 @@ app.post('/todos',(req,res)=>{
 app.get('/todos',(req,res)=>
 {
    Todo.find().then((todos)=>{
-       console.log(todos);
        res.send({todos:todos})
    },(err)=>{
        res.status(400);
@@ -47,7 +63,6 @@ app.get('/todos/:id',(req,res)=>{
 
 
 //to delete
-
 app.delete('/user/:id',(req,res)=>{
     var id = req.params.id;
     if(!ObjectID.isValid(id)){
@@ -67,6 +82,39 @@ app.delete('/user/:id',(req,res)=>{
 
 
 
+//update
+
+app.patch('/todos/:id',(req,res)=>{
+
+   var id = req.params.id;
+
+   if(!ObjectID.isValid(id)){
+       return res.status(404).send();
+   }
+
+   var body = _.pick(req.body,['text','complete'])
+
+    if(_.isBoolean(body.complete) && body.complete)
+    {
+        body.completeAt = new Date().getTime();
+    }
+    else
+    {
+        body.completeAt = null;
+        body.complete = false;
+    }
+
+   Todo.findByIdAndUpdate(id,{$set: body},{new: true}).then(
+       (doc)=>{
+           if(!doc){
+               return res.status(404).send();
+           }
+           res.send(doc)
+       }
+   ).catch((e)=>{
+       return res.status(404).send()
+   })
+});
 
 
 
