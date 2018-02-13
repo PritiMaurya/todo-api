@@ -11,9 +11,8 @@ else if(env === 'test')
 }
 
 
-var express = require('express')
-var bodyParser = require('body-parser')
-var {ObjectID} = require('mongodb')
+const express = require('express')
+const {ObjectID} = require('mongodb')
 var _ = require('lodash')
 
 var bodyParser = require('body-parser')
@@ -22,6 +21,7 @@ var {mongoose} = require('./db/mongoose-coonect')
 var {Todo} = require('./model/todo')
 var {User} = require('./model/user')
 var {Student} = require('./model/student')
+var {Users} = require('./model/users')
 
 var app = new express();
 var port = process.env.PORT || 3001
@@ -117,7 +117,24 @@ app.patch('/todos/:id',(req,res)=>{
 });
 
 
+//insert into users doc
 
+app.post('/users',(req,res)=>{
+
+    body = _.pick(req.body,["email","password"])
+    user = new Users(
+        {
+            email: body.email,
+            password: body.password
+        })
+    user.save().then(()=>{
+      return user.generateAuthToken()
+    }).then((token)=>{
+        res.header('x-auth',token).send(user)
+    }).catch((e)=>{
+        res.status(404).send(e)
+    })
+})
 
 
 
